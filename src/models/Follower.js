@@ -22,9 +22,6 @@ const followerSchema = new mongoose.Schema(
   }
 );
 
-// Explicit unique index to prevent duplicate follows from the same IP at the DB level
-followerSchema.index({ ip: 1 }, { unique: true });
-
 const Follower = mongoose.models.Follower || mongoose.model('Follower', followerSchema);
 
 export default Follower;
