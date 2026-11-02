@@ -11,11 +11,33 @@ const PORT = process.env.PORT || 5000;
 
 app.set('trust proxy', true);
 
-const allowedOrigins = process.env.CLIENT_URL;
-const allowedOriginsOne = process.env.CLIENT_URL2;
+const allowedOrigins = [
+  process.env.CLIENT_URL,
+  process.env.CLIENT_URL2,
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'http://localhost:5000',
+].filter(Boolean);
 
 app.use(cors({
-  origin: [allowedOrigins, allowedOriginsOne],
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps, curl, or server-to-server)
+    if (!origin) return callback(null, true);
+    
+    // Check if origin matches allowed domains or local development IPs (localhost, 192.168.x.x, 10.x.x.x)
+    const isAllowed = 
+      allowedOrigins.includes(origin) ||
+      origin.startsWith('http://localhost:') ||
+      origin.startsWith('http://127.0.0.1:') ||
+      origin.startsWith('http://192.168.') ||
+      origin.startsWith('http://10.') ||
+      origin.startsWith('http://172.');
+
+    if (isAllowed) {
+      return callback(null, true);
+    }
+    return callback(new Error(`CORS blocked for origin: ${origin}`));
+  },
   methods: ['GET', 'POST'],
   credentials: true,
 }));
