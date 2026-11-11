@@ -1,0 +1,41 @@
+
+name: Deploy Backend
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            set -e
+
+            cd /var/www/portfolio/backend
+
+            if git ls-files --error-unmatch .env >/dev/null 2>&1; then
+              echo "ERROR: .env must not be tracked by Git"
+              exit 1
+            fi
+
+            export NVM_DIR="$HOME/.nvm"
+            source "$NVM_DIR/nvm.sh"
+
+            git fetch origin main
+            git reset --hard origin/main
+
+            npm ci --omit=dev
+
+            pm2 restart portfolio-api
+
+            sleep 3
+            curl --fail http://localhost:3000/api/health
