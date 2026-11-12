@@ -24,7 +24,6 @@ app.use(cors({
     // Allow requests with no origin (like mobile apps, curl, or server-to-server)
     if (!origin) return callback(null, true);
     
-    // Check if origin matches allowed domains or local development IPs (localhost, 192.168.x.x, 10.x.x.x)
     const isAllowed = 
       allowedOrigins.includes(origin) ||
       origin.startsWith('http://localhost:') ||

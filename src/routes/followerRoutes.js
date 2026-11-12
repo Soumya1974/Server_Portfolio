@@ -5,9 +5,6 @@ import { getClientIp } from '../utils/getIp.js';
 
 const router = express.Router();
 
-/**
- * Middleware to check database connection
- */
 const checkDbConnection = (req, res, next) => {
   if (mongoose.connection.readyState !== 1) {
     return res.status(503).json({
